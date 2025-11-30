@@ -6,5 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+	
+	
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ovning5.Tests" />
+  </ItemGroup>
 
 </Project>
