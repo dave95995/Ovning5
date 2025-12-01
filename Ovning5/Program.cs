@@ -8,8 +8,8 @@ namespace Ovning5
 	{
 		private static void Main(string[] args)
 		{
-			//NormalRun();
-			TestRun();
+			NormalRun();
+			//TestRun();
 			//AutoRun();
 		}
 

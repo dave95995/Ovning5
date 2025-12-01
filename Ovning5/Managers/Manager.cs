@@ -4,15 +4,14 @@ using Ovning5.UI;
 
 namespace Ovning5.Managers
 {
-
-
-	class ManagerMenu
+	internal class ManagerMenu
 	{
-		record MenuItem (string key, string description, Action action);
+		record MenuItem(string key, string description, Action action);
 
-		List<MenuItem> _menuItems = new List<MenuItem>();
+		private List<MenuItem> _menuItems = new List<MenuItem>();
 
 		private IUI _uI;
+
 		public ManagerMenu(IUI ui)
 		{
 			_uI = ui;
@@ -23,7 +22,6 @@ namespace Ovning5.Managers
 			_menuItems.Add(new MenuItem(key, description, action));
 		}
 
-
 		public void DisplayMenu()
 		{
 			foreach (var menuItem in _menuItems)
@@ -32,88 +30,61 @@ namespace Ovning5.Managers
 			}
 		}
 
-	}
+		public void ReadMenuChoice()
+		{
+			string choice = _uI.GetInput("Select an option: ");
 
+			foreach (var menuItem in _menuItems)
+			{
+				if (menuItem.key == choice)
+				{
+					menuItem.action();
+					return;
+				}
+			}
+			_uI.PrintLine("Invalid selection. Please try again.");
+		}
+	}
 
 	internal class Manager
 	{
 		private IUI _uI;
 		private IHandler _handler;
+		private ManagerMenu _menu;
 
 		public Manager(IUI uI, IHandler handler)
 		{
 			_uI = uI ?? throw new ArgumentNullException(nameof(uI));
 			_handler = handler ?? throw new ArgumentNullException(nameof(handler));
+
+			_menu = new ManagerMenu(_uI);
+			_menu.AddMenuItem("1", "List Parked Vehicles", ListParkedVehicles);
+			_menu.AddMenuItem("2", "List Parked Vehicles by Group", ListParkedVehiclesByGroup);
+			_menu.AddMenuItem("3", "Park a Vehicle", CreateAndParkVehicle);
+			_menu.AddMenuItem("4", "Remove a Vehicle", PromptAndRemoveByLicensePlate);
+			_menu.AddMenuItem("5", "Search Vehicle by license plate", PromptAndSearchByLicensePlate);
+			_menu.AddMenuItem("6", "Search Vehicles by Properties", SearchByProperties);
+			_menu.AddMenuItem("7", "Create garage", TryCreateGarage);
+			_menu.AddMenuItem("8", "Exit", HandleExit);
 		}
 
 		internal void Run()
 		{
 			if (_handler.GarageExists() == false)
 			{
-				_uI.PrintLine("Create new garage");
 				HandleCreateGarage();
-				_uI.PrintLine();
 			}
-
 			bool running = true;
 			while (running)
 			{
 				_uI.PrintLine($"Menu for garage: {_handler.GetGarageName()}");
-				_uI.PrintLine("1. List Parked Vehicles");
-				_uI.PrintLine("2. List Parked Vehicles by Group");
-				_uI.PrintLine("3. Park a Vehicle");
-				_uI.PrintLine("4. Remove a Vehicle");
-				_uI.PrintLine("5. Search Vehicle by license plate");
-				_uI.PrintLine("6. Search Vehicles by Properties");
-				_uI.PrintLine("7. Create garage");
-				_uI.PrintLine("8. Exit");
-
-				int choice = IOUtils.ReadIntBetween(_uI, 1, 8, "Select an option (1-7): ", "Invalid selection. Please choose a number between 1 and 8.");
-				_uI.PrintLine();
-				switch (choice)
-				{
-					case 1:
-						ListParkedVehicles();
-						break;
-
-					case 2:
-						ListParkedVehiclesByGroup();
-						break;
-
-					case 3:
-						CreateAndParkVehicle();
-						break;
-
-					case 4:
-						PromptAndRemoveByLicensePlate();
-						break;
-
-					case 5:
-						PromptAndSearchByLicensePlate();
-						break;
-
-					case 6:
-						SearchByProperties();
-						break;
-
-					case 7:
-						TryCreateGarage();
-						break;
-
-					case 8:
-						HandleExit();
-						break;
-
-					default:
-						break;
-				}
-				_uI.PrintLine();
+				_menu.DisplayMenu();
+				_menu.ReadMenuChoice();
 			}
 		}
 
 		private void HandleExit()
 		{
-
 			_uI.PrintLine("Exiting the system. Goodbye!");
 			Environment.Exit(0);
 		}
@@ -127,6 +98,7 @@ namespace Ovning5.Managers
 			}
 			HandleCreateGarage();
 		}
+
 		private void PromptAndRemoveByLicensePlate()
 		{
 			_uI.Print("Enter license plate of vehicle to remove: ");
