@@ -20,7 +20,7 @@ namespace Ovning5
 			var manager = new Manager(ui, handler);
 			manager.Run();
 		}
-
+		/*
 		private static void AutoRun()
 		{
 			var ui = new Mock_UI();
@@ -42,6 +42,7 @@ namespace Ovning5
 				Console.Write(u);
 			}
 		}
+		*/
 
 		private static void TestRun()
 		{
