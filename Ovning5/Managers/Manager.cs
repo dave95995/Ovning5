@@ -4,6 +4,37 @@ using Ovning5.UI;
 
 namespace Ovning5.Managers
 {
+
+
+	class ManagerMenu
+	{
+		record MenuItem (string key, string description, Action action);
+
+		List<MenuItem> _menuItems = new List<MenuItem>();
+
+		private IUI _uI;
+		public ManagerMenu(IUI ui)
+		{
+			_uI = ui;
+		}
+
+		public void AddMenuItem(string key, string description, Action action)
+		{
+			_menuItems.Add(new MenuItem(key, description, action));
+		}
+
+
+		public void DisplayMenu()
+		{
+			foreach (var menuItem in _menuItems)
+			{
+				_uI.PrintLine($"{menuItem.key}: {menuItem.description}");
+			}
+		}
+
+	}
+
+
 	internal class Manager
 	{
 		private IUI _uI;
@@ -54,15 +85,11 @@ namespace Ovning5.Managers
 						break;
 
 					case 4:
-						_uI.Print("Enter license plate of vehicle to remove: ");
-						string removeId = _uI.GetInput();
-						RemoveVehicle(removeId);
+						PromptAndRemoveByLicensePlate();
 						break;
 
 					case 5:
-						_uI.Print("Enter license plate to search: ");
-						string searchId = _uI.GetInput();
-						SearchVehicle(searchId);
+						PromptAndSearchByLicensePlate();
 						break;
 
 					case 6:
@@ -70,25 +97,49 @@ namespace Ovning5.Managers
 						break;
 
 					case 7:
-						if (_handler.GarageExists() == true)
-						{
-							_uI.PrintLine("Only one garage possible at this time.");
-							break;
-						}
-						HandleCreateGarage();
+						TryCreateGarage();
 						break;
 
 					case 8:
-						_uI.PrintLine("Exiting the system. Goodbye!");
-						running = false;
+						HandleExit();
 						break;
 
 					default:
-						_uI.PrintLine("Invalid selection.");
 						break;
 				}
 				_uI.PrintLine();
 			}
+		}
+
+		private void HandleExit()
+		{
+
+			_uI.PrintLine("Exiting the system. Goodbye!");
+			Environment.Exit(0);
+		}
+
+		private void TryCreateGarage()
+		{
+			if (_handler.GarageExists() == true)
+			{
+				_uI.PrintLine("Only one garage possible at this time.");
+				return;
+			}
+			HandleCreateGarage();
+		}
+		private void PromptAndRemoveByLicensePlate()
+		{
+			_uI.Print("Enter license plate of vehicle to remove: ");
+			string removeId = _uI.GetInput();
+			RemoveVehicle(removeId);
+		}
+
+		private void PromptAndSearchByLicensePlate()
+		{
+			_uI.Print("Enter license plate to search: ");
+			string searchId = _uI.GetInput();
+			SearchVehicle(searchId);
+			return;
 		}
 
 		private void HandleCreateGarage()
